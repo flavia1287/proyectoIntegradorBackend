@@ -1,9 +1,12 @@
 package com.dh.clinica.controller;
 
 import com.dh.clinica.model.Usuario;
+import com.dh.clinica.security.jwt.JwtUtils;
 import com.dh.clinica.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,9 +25,14 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    JwtUtils jwtUtils;
+
     @PostMapping()
     public ResponseEntity<Usuario> registrarUsuario(@RequestBody Usuario usuario) {
-
+        if(usuarioService.loadUserByUsername(usuario.getEmail()) != null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
         return ResponseEntity.ok(usuarioService.registrarUsuario(usuario));
 
     }
@@ -33,6 +41,8 @@ public class UsuarioController {
     public ResponseEntity<Usuario> loginUsuario(@RequestBody Usuario usuario) {
         Usuario usuarioEnDB = usuarioService.loginUsuario(usuario);
         if(usuarioEnDB != null) {
+            String jwt = jwtUtils.generateTokenFromUsername(usuarioEnDB.getEmail());
+            usuarioEnDB.setJwt(jwt);
             return ResponseEntity.ok(usuarioEnDB);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
