@@ -15,6 +15,8 @@ public class Usuario {
     @Column
     private String rol;
 
+    private String jwt;
+
     public Usuario() {
     }
 
@@ -61,6 +63,14 @@ public class Usuario {
 
     public void setRol(String rol) {
         this.rol = rol;
+    }
+
+    public String getJwt() {
+        return jwt;
+    }
+
+    public void setJwt(String jwt) {
+        this.jwt = jwt;
     }
 
     @Override
